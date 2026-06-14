@@ -24,7 +24,7 @@ app.use(cors({
     origin: [
         "http://localhost:5173",
         "http://localhost:5174",
-        "https://first-project-e-commerce-frontend.vercel.app/" // ✅ سنعدل هذا بعد ما نحصل على رابط Vercel
+        "https://first-project-e-commerce-frontend.vercel.app" // ✅ سنعدل هذا بعد ما نحصل على رابط Vercel
     ],
     credentials: true
 }));

@@ -4,10 +4,11 @@ export const createPaymentIntent = async (req, res) => {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   try {
     const { amount } = req.body;
+    console.log("Received amount:", amount);
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // convert to paisa (smallest PKR unit)
-      currency: "pkr",
+      currency: "usd",
     });
 
     res.status(200).json({ clientSecret: paymentIntent.client_secret });

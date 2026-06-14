@@ -5,6 +5,7 @@ import Product from "../models/productModel.js";
 
 // استيراد الكلاس الخاص بالبحث والفلترة والتقسيم
 import ApiFeatures from "../util/ApiFeatures.js";
+import { v2 as cloudinary } from "cloudinary";
 
 
 
@@ -20,9 +21,35 @@ export const createProducts = async (req, res) => {
 
     try {
 
+        // هيّئ Cloudinary في كل استدعاء للتأكد من أن متغيرات البيئة محمّلة
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET,
+        });
+
+        // إذا جاءت صور بصيغة Base64 من الفرونت، نرفعها أولًا إلى Cloudinary
+        const { images } = req.body;
+        let uploadedImages = [];
+        
+        if (images && Array.isArray(images) && images.length > 0) {
+            for (const image of images) {
+                const uploaded = await cloudinary.uploader.upload(image, {
+                    folder: "products",
+                    width: 800,
+                    crop: "scale",
+                });
+                uploadedImages.push({ 
+                    public_id: uploaded.public_id, 
+                    url: uploaded.secure_url 
+                });
+            }
+        }
+
         // إنشاء منتج جديد داخل قاعدة البيانات
-        // req.body يحتوي البيانات القادمة من الـ frontend
-        const product = await Product.create(req.body);
+        // نضمّن مصفوفة الصور التي أنشأناها أعلاه
+        const productData = { ...req.body, images: uploadedImages };
+        const product = await Product.create(productData);
 
 
         // إذا لم يتم إنشاء المنتج
@@ -115,7 +142,7 @@ export const getAllProducts = async (req, res) => {
         .filter()
 
         // pagination
-        .pagination();
+        // .pagination();
 
 
         // تنفيذ الـ query
@@ -235,6 +262,13 @@ export const updateProductController = async (req, res) => {
 
     try {
 
+        // هيّئ Cloudinary في كل استدعاء للتأكد من أن متغيرات البيئة محمّلة
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET,
+        });
+
         /*
         البحث عن المنتج أولًا
         */
@@ -250,6 +284,39 @@ export const updateProductController = async (req, res) => {
 
             });
         }
+
+        // معالجة الصور الجديدة إن وجدت
+        const { newImages, keepExistingImages } = req.body;
+        let finalImages = [];
+
+        // إذا أراد المستخدم الاحتفاظ بالصور الموجودة
+        if (keepExistingImages && product.images && product.images.length > 0) {
+            finalImages = product.images;
+        }
+
+        // رفع الصور الجديدة إلى Cloudinary إن وجدت
+        if (newImages && Array.isArray(newImages) && newImages.length > 0) {
+            for (const image of newImages) {
+                const uploaded = await cloudinary.uploader.upload(image, {
+                    folder: "products",
+                    width: 800,
+                    crop: "scale",
+                });
+                finalImages.push({
+                    public_id: uploaded.public_id,
+                    url: uploaded.secure_url
+                });
+            }
+        }
+
+        // تحضير بيانات التحديث
+        const updateData = { ...req.body };
+        if (finalImages.length > 0) {
+            updateData.images = finalImages;
+        }
+        delete updateData.newImages;
+        delete updateData.keepExistingImages;
+
         /*
         findByIdAndUpdate
         تعني:
@@ -262,7 +329,7 @@ export const updateProductController = async (req, res) => {
             req.params.id,
 
             // البيانات الجديدة القادمة من الـ frontend
-            req.body,
+            updateData,
 
             {
                 /*

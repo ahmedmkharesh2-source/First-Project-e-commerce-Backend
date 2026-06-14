@@ -1,243 +1,140 @@
+// ============================================
 // استيراد express
 // express هو framework يساعدنا نبني backend بسهولة
+// ============================================
 import express from "express";
 
-/*
-استيراد الـ controllers الخاصة بالمنتجات
-
-كل controller مسؤول عن عملية معينة:
-
-createProducts
-إنشاء منتج
-
-getAllProducts
-جلب كل المنتجات
-
-getProductDetail
-جلب منتج واحد
-
-updateProductController
-تعديل منتج
-
-deleteProductController
-حذف منتج
-*/
+// ============================================
+// استيراد الـ controllers الخاصة بالمنتجات
+// كل controller مسؤول عن عملية معينة:
+// ============================================
 import {
-    createProducts,
-    deleteProductController,
-    getAllProducts,
-    getProductDetail,
-    updateProductController
-}
-from "../controls/productController.js";
+    createProducts,           // إنشاء منتج
+    getAllProducts,           // جلب كل المنتجات
+    getProductDetail,         // جلب منتج واحد
+    updateProductController,  // تعديل منتج
+    deleteProductController   // حذف منتج
+} from "../controls/productController.js";
 
-/*
-استيراد middleware خاص بالحماية والصلاحيات
-
-isAuthenticatedUser
-يتأكد أن المستخدم مسجل دخول
-
-isAdmin("admin")
-يتأكد أن المستخدم أدمن
-*/
+// ============================================
+// استيراد middleware خاص بالحماية والصلاحيات
+// ============================================
 import {
-    isAdmin,
-    isAuthenticatedUser
-}
-from "../util/userAuth.js";
+    isAuthenticatedUser,  // يتأكد أن المستخدم مسجل دخول
+    isAdmin               // يتأكد أن المستخدم أدمن
+} from "../util/userAuth.js";
 
-/*
-إنشاء Router جديد
-الـ Router مسؤول عن تنظيم الـ routes
-بدل ما نضع كل routes داخل server.js
-نضعها هنا لتنظيم المشروع
-*/
+// ============================================
+// إنشاء Router جديد
+// الـ Router مسؤول عن تنظيم الـ routes
+// بدل ما نضع كل routes داخل server.js
+// نضعها هنا لتنظيم المشروع
+// ============================================
 const productsRouter = express.Router();
-/*
-=====================================================
-CREATE PRODUCT
-=====================================================
 
-POST
-يستخدم لإرسال بيانات وإنشاء شيء جديد
-
-الرابط:
- /create-product
-*/
-
+// ============================================
+// CREATE PRODUCT - إنشاء منتج جديد
+// POST: يستخدم لإرسال بيانات وإنشاء شيء جديد
+// الرابط: /create-product
+// ============================================
 productsRouter.post(
-
-    // الرابط
-    "/create-product",
-    /*
-    middleware رقم 1
-
-    يتأكد أن المستخدم مسجل دخول
-
-    إذا لم يكن مسجل دخول:
-    يمنعه
-    */
-    isAuthenticatedUser,
-    /*
-    middleware رقم 2
-    يتأكد أن المستخدم أدمن
-    لماذا؟
-    لأن إنشاء المنتجات فقط للأدمن
-    */
-    isAdmin("admin"),
-    /*
-    controller النهائي
-    إذا نجحت كل الشروط السابقة
-    يتم تشغيل createProducts
-    */
-    createProducts
+    "/create-product",           // الرابط
+    
+    isAuthenticatedUser,         // middleware رقم 1: يتأكد أن المستخدم مسجل دخول
+                                 // إذا لم يكن مسجل دخول: يمنعه
+    
+    isAdmin("admin"),            // middleware رقم 2: يتأكد أن المستخدم أدمن
+                                 // لماذا؟ لأن إنشاء المنتجات فقط للأدمن
+    
+    createProducts               // controller النهائي: إذا نجحت كل الشروط السابقة
 );
 
-/*
-=====================================================
-GET ALL PRODUCTS
-=====================================================
-GET
-يستخدم لجلب البيانات
-*/
+// ============================================
+// GET ALL PRODUCTS - جلب كل المنتجات
+// GET: يستخدم لجلب البيانات
+// الرابط: /get-all-products
+// ============================================
 productsRouter.get(
-    // الرابط
-    "/get-all-products",
-    /*
-    controller جلب المنتجات
-    هنا لا يوجد حماية
-    لأن أي شخص يستطيع مشاهدة المنتجات
-    */
+    "/get-all-products",         // الرابط
+    
+    // controller جلب المنتجات
+    // هنا لا يوجد حماية
+    // لأن أي شخص يستطيع مشاهدة المنتجات
     getAllProducts
 );
-/*
-=====================================================
-GET PRODUCT DETAIL
-=====================================================
-جلب تفاصيل منتج واحد
-*/
 
+// ============================================
+// GET PRODUCT DETAIL - جلب تفاصيل منتج واحد
+// :id يسمى route parameter (معامل المسار)
+// يعني id متغير
+// مثال: /product-detail/123 ← 123 هو id
+// ============================================
 productsRouter.get(
-    /*
-    :id
-    يسمى route parameter
-    يعني id متغير
-    مثال:
-    /product-detail/123
-    123 هو id
-    */
-    "/product-detail/:id",
-    // controller
-    getProductDetail
+    "/product-detail/:id",       // الرابط مع معامل id
+    
+    getProductDetail             // controller جلب تفاصيل المنتج
 );
 
-/*
-=====================================================
-UPDATE PRODUCT
-=====================================================
-PUT
-يستخدم للتعديل
-*/
+// ============================================
+// UPDATE PRODUCT - تعديل منتج
+// PUT: يستخدم للتعديل
+// الرابط: /update-product/:id
+// ============================================
 productsRouter.put(
-    /*
-    رابط التعديل
-    :id
-    id المنتج المراد تعديله
-    */
-    "/update-product/:id",
-    /*
-    التأكد أن المستخدم مسجل دخول
-    */
-    isAuthenticatedUser,
-    /*
-    التأكد أنه أدمن
-    */
-    isAdmin("admin"),
-    /*
-    controller التعديل
-    */
-    updateProductController
+    "/update-product/:id",       // الرابط مع id المنتج المراد تعديله
+    
+    isAuthenticatedUser,         // التأكد أن المستخدم مسجل دخول
+    
+    isAdmin("admin"),          // التأكد أنه أدمن
+    
+    updateProductController      // controller التعديل
 );
 
-/*
-=====================================================
-DELETE PRODUCT
-=====================================================
-
-DELETE
-يستخدم للحذف
-*/
-
+// ============================================
+// DELETE PRODUCT - حذف منتج
+// DELETE: يستخدم للحذف
+// الرابط: /delete-product/:id
+// ============================================
 productsRouter.delete(
-    /*
-    رابط الحذف
-    :id
-    id المنتج المراد حذفه
-    */
-    "/delete-product/:id",
-    /*
-    حماية:
-    لازم يكون مسجل دخول
-    */
-    isAuthenticatedUser,
-    /*
-    لازم يكون أدمن
-    */
-    isAdmin("admin"),
-    /*
-    controller الحذف
-    */
-    deleteProductController
+    "/delete-product/:id",       // الرابط مع id المنتج المراد حذفه
+    
+    isAuthenticatedUser,         // حماية: لازم يكون مسجل دخول
+    
+    isAdmin("admin"),          // لازم يكون أدمن
+    
+    deleteProductController      // controller الحذف
 );
 
-/*
-تصدير الـ router
-حتى نستطيع استخدامه داخل server.js
-*/
+// ============================================
+// تصدير الـ router
+// حتى نستطيع استخدامه داخل server.js
+// ============================================
 export default productsRouter;
 
-/*
-=====================================================
-HTTP METHODS
-=====================================================
+// ============================================
+// شرح أنواع HTTP METHODS
+// ============================================
 
-هذه أهم أنواع الطلبات في الـ API
-*/
 /*
-POST
+POST (إنشاء)
 يستخدم لإرسال بيانات جديدة للسيرفر
-مثال:
-إنشاء منتج جديد
-إنشاء مستخدم
+مثال: إنشاء منتج جديد، إنشاء مستخدم
 */
- // post ( to set the data in database and save that data in database )
-/*
-GET
 
+/*
+GET (جلب)
 يستخدم لجلب البيانات من قاعدة البيانات
-
-مثال:
-عرض المنتجات
-عرض المستخدمين
+مثال: عرض المنتجات، عرض المستخدمين
 */
- // get ( to retrieve the data from database )
+
 /*
-PUT / PATCH
-
-كلاهما يستخدم للتعديل
-
-PUT:
-غالبًا لتعديل كامل البيانات
-
-PATCH:
-غالبًا لتعديل جزء من البيانات فقط
+PUT / PATCH (تعديل)
+PUT: غالبًا لتعديل كامل البيانات
+PATCH: غالبًا لتعديل جزء من البيانات فقط
 */
- // put / patch
+
 /*
-DELETE
+DELETE (حذف)
 لحذف البيانات
-مثال:
-حذف منتج
-حذف مستخدم
+مثال: حذف منتج، حذف مستخدم
 */
- // delete ( to delete something from database)

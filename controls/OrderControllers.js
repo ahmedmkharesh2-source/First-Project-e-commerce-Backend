@@ -3,7 +3,7 @@ import Product from "../models/productModel.js";
 
 export const createOrderController = async (req, res) => {
     try {
-        const { orderItems, shippingInfo, paymentInfo, taxPrice, shippingPrice, totalPrice, orderstatus } = req.body;
+        const { orderItems, shippingInfo, paymentInfo, taxPrice, shippingCost, totalPrice, orderStatus } = req.body;
 
 
         for (const item of orderItems) {
@@ -27,9 +27,9 @@ export const createOrderController = async (req, res) => {
             shippingInfo,
             paymentInfo,
             taxPrice,
-            shippingPrice,
+            shippingCost,
             totalPrice,
-            orderstatus,
+            orderStatus: orderStatus || "Processing",
             user: req.user._id,
             paidAt: Date.now()
         });
@@ -105,16 +105,16 @@ export const myOrderDetails = async (req, res) => {
 export const getAllOrders = async (req, res) => {
     try {
         const orders = await Order.find();
-        if (!orders) {
-            return res.status(400).json({
-                success: false,
-                message: "No orders found"
+        if (!orders || orders.length === 0) {
+            return res.status(200).json({
+                success: true,
+                total: 0,
+                orders: []
             })
         }
-        let total = 0
+        let total = 0;
         orders.forEach(element => {
-            total = total + orders.totalPrice
-
+            total = total + element.totalPrice;
         });
         return res.status(200).json({
             success: true,
@@ -126,9 +126,7 @@ export const getAllOrders = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Internal server error"
-        }
-
-        )
+        })
     }
 }
 export const updateOrderStatus = async (req, res) => {
@@ -198,4 +196,5 @@ async function updatestock(id, quantity) {
     console.log(`Updating stock: ${product.title}, New Stock: ${product.stock}`);
 
     await product.save();
+
 }

@@ -32,7 +32,7 @@ class ApiFeatures{
     // category = "electronics", "dressing"
 // ترقيم الصفحات مثلا عرض المنتجات 5 في الصفحة، الصفحة الأولى تعرض المنتجات من 1 الى 5، الصفحة الثانية تعرض المنتجات من 6 الى 10        
     pagination(){
-        let productsPerPage = 5;
+        let productsPerPage = 10;
         const currentPage = this.queryStr.page || 1
         const skip = productsPerPage * (currentPage - 1);
         this.query = this.query.limit(productsPerPage).skip(skip);

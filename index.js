@@ -21,7 +21,11 @@ import paymentRouter from "./routes/paymentRoutes.js";
 // console.log("====================================");
 
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://yemen-frontend.vercel.app" // ✅ سنعدل هذا بعد ما نحصل على رابط Vercel
+    ],
     credentials: true
 }));
 

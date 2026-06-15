@@ -20,11 +20,21 @@ import paymentRouter from "./routes/paymentRoutes.js";
 // console.log("API Secret Exists:", !!process.env.CLOUDINARY_API_SECRET);
 // console.log("====================================");
 
+// app.use(cors({
+//     origin: [
+//         "http://localhost:5173",
+//         "http://localhost:5174",
+//         "https://first-project-e-commerce-frontend.vercel.app" // ✅ سنعدل هذا بعد ما نحصل على رابط Vercel
+//     ],
+//     credentials: true
+// }));
+
+// --------------------
 app.use(cors({
     origin: [
         "http://localhost:5173",
         "http://localhost:5174",
-        "https://first-project-e-commerce-frontend.vercel.app" // ✅ سنعدل هذا بعد ما نحصل على رابط Vercel
+        "https://first-project-e-commerce-frontend.vercel.app"
     ],
     credentials: true
 }));
